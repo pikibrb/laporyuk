@@ -54,7 +54,7 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_navigation_menu_can_be_rendered(): void
+    public function test_portal_navigation_can_be_rendered(): void
     {
         $user = User::factory()->create();
 
@@ -64,7 +64,8 @@ class AuthenticationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+            ->assertSeeVolt('sidebar')
+            ->assertSeeVolt('bottom-nav');
     }
 
     public function test_users_can_logout(): void
@@ -73,13 +74,7 @@ class AuthenticationTest extends TestCase
 
         $this->actingAs($user);
 
-        $component = Volt::test('layout.navigation');
-
-        $component->call('logout');
-
-        $component
-            ->assertHasNoErrors()
-            ->assertRedirect('/');
+        $this->post('/logout')->assertRedirect('/');
 
         $this->assertGuest();
     }

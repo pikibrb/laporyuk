@@ -1,7 +1,7 @@
 <?php
 
-use Livewire\Volt\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Volt\Component;
 
 new class extends Component {
     public function with(): array
@@ -12,60 +12,110 @@ new class extends Component {
     }
 }; ?>
 
-<aside class="hidden lg:flex flex-col w-64 bg-white border-r border-gray-300 min-h-screen justify-between">
+@php
+    $linkClass = fn (bool $active) => 'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors '.($active
+        ? 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
+        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-100');
+@endphp
+
+<aside class="sticky top-0 hidden h-screen w-64 shrink-0 flex-col justify-between overflow-y-auto border-r border-gray-200 bg-white lg:flex dark:border-gray-700 dark:bg-gray-900">
     <div class="p-4">
-        <div class="flex items-center space-x-3 pb-6 border-b border-gray-200">
-            <div class="w-10 h-10 rounded bg-blue-700 flex items-center justify-center text-white font-bold text-lg">LY</div>
-            <div>
-                <h1 class="font-bold text-gray-800 text-base leading-none">Lapor Yuk!</h1>
-                <span class="text-xs text-gray-500">Sistem Pelaporan</span>
-            </div>
-        </div>
+        <x-brand class="px-1" />
 
         <nav class="mt-6 space-y-1">
-            <a href="{{ route('sos') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors mb-4">
-                <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <span>Pusat SOS Darurat</span>
+            <a href="{{ route('home') }}" class="{{ $linkClass(request()->routeIs('home', 'laporan.show')) }}">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span>Peta Warga</span>
             </a>
 
-            <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-700' : 'text-gray-700 hover:bg-gray-100' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                <span>Dashboard</span>
+            <a href="{{ route('lapor') }}" class="{{ $linkClass(request()->routeIs('lapor')) }}">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                <span>Buat Laporan</span>
             </a>
 
-            <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <span>Laporan Saya</span>
+            <a href="{{ route('dashboard') }}" class="{{ $linkClass(request()->routeIs('dashboard')) }}">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span>{{ $user?->isAdmin() ? 'Pusat Kendali' : 'Laporan Saya' }}</span>
             </a>
 
-            @if($user && $user->role === 'admin')
-                <div class="pt-4 pb-1"><span class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Menu Admin</span></div>
-                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <a href="{{ route('feedback') }}" class="{{ $linkClass(request()->routeIs('feedback')) }}">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                </svg>
+                <span>Masukan &amp; Saran</span>
+            </a>
+
+            @if ($user?->isAdmin())
+                <a href="{{ route('kategori.index') }}" class="{{ $linkClass(request()->routeIs('kategori.*')) }}">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    </svg>
                     <span>Kelola Kategori</span>
                 </a>
             @endif
         </nav>
+
+        <div class="mt-6">
+            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Bantuan</p>
+            <a href="{{ route('darurat') }}" class="mt-2 flex items-start gap-3 rounded-md border border-gray-200 bg-gray-50 px-3 py-3 text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-700 text-white">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h2.28a1 1 0 01.95.68l1.1 3.3a1 1 0 01-.27 1.06l-1.2 1.1a11 11 0 005.5 5.5l1.1-1.2a1 1 0 011.06-.27l3.3 1.1a1 1 0 01.68.95V19a2 2 0 01-2 2h-1A16 16 0 013 6V5z"/>
+                    </svg>
+                </span>
+                <span class="min-w-0">
+                    <span class="block text-sm font-bold">Nomor Penting</span>
+                    <span class="block text-xs text-gray-500 dark:text-gray-400">Daftar nomor layanan warga</span>
+                </span>
+            </a>
+        </div>
+
+        <div class="mt-6 flex items-center justify-between gap-2 rounded-md border border-gray-200 px-3 py-2 dark:border-gray-700">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">Tema tampilan</span>
+            <x-theme-toggle compact />
+        </div>
     </div>
 
-    <div class="p-4 border-t border-gray-200">
-        @if($user)
-            <div class="flex items-center justify-between">
-                <div class="truncate">
-                    <p class="text-sm font-medium text-gray-800 truncate">{{ $user->name }}</p>
-                    <p class="text-xs text-gray-500 capitalize">{{ $user->role }}</p>
+    <div class="border-t border-gray-200 p-4 dark:border-gray-700">
+        @if ($user)
+            <div class="mb-3 flex items-center gap-3">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                </span>
+                <div class="min-w-0">
+                    <p class="truncate text-sm font-medium text-gray-800 dark:text-gray-200">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $user->isAdmin() ? 'Admin / Petugas' : 'Warga' }}</p>
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <a href="{{ route('profile') }}" class="rounded-md border border-gray-300 px-3 py-2 text-center text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                    Profil
+                </a>
+
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="p-2 text-gray-500 hover:text-red-700 hover:bg-gray-100 rounded-md transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <button type="submit" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                        Keluar
                     </button>
                 </form>
             </div>
         @else
-            <a href="{{ route('login') }}" class="w-full flex justify-center py-2 px-4 border border-blue-700 rounded-md shadow-sm text-sm font-medium text-blue-700 hover:bg-blue-50 transition-colors mb-2">
-                Masuk Admin/Petugas
+            <a href="{{ route('login') }}" class="block rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800">
+                Masuk Petugas
             </a>
+            <a href="{{ route('register') }}" class="mt-2 block rounded-md border border-gray-300 px-3 py-2 text-center text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                Daftar Warga
+            </a>
+            <p class="mt-3 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                Laporan dapat dikirim tanpa akun. Masuk untuk memantau status laporan Anda.
+            </p>
         @endif
     </div>
 </aside>

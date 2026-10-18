@@ -37,7 +37,8 @@ class ProfileTest extends TestCase
 
         $component
             ->assertHasNoErrors()
-            ->assertNoRedirect();
+            ->assertNoRedirect()
+            ->assertDispatched('notify', type: 'success');
 
         $user->refresh();
 

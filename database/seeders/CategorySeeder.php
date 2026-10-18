@@ -12,17 +12,16 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['name' => 'Kebakaran', 'urgency_level' => 'high'],
-            ['name' => 'Kedaruratan Medis & Kesehatan', 'urgency_level' => 'high'],
-            ['name' => 'Tindak Kriminalitas & Keamanan', 'urgency_level' => 'high'],
-            ['name' => 'Bencana Alam (Banjir, Tanah Longsor)', 'urgency_level' => 'high'],
-            ['name' => 'Gangguan Lalu Lintas & Kecelakaan', 'urgency_level' => 'high'],
-            ['name' => 'Infrastruktur Jalan & Jembatan Rusak', 'urgency_level' => 'normal'],
-            ['name' => 'Fasilitas Publik Terbengkalai', 'urgency_level' => 'normal'],
-            ['name' => 'Pencemaran Lingkungan & Sampah', 'urgency_level' => 'normal'],
-            ['name' => 'Masalah Utilitas (Listrik, Air, Gas)', 'urgency_level' => 'normal'],
-            ['name' => 'Perlindungan Hewan Liar', 'urgency_level' => 'normal'],
-            ['name' => 'Laporan Lainnya', 'urgency_level' => 'normal'],
+            ['name' => 'Pencemaran Sungai & Air'],
+            ['name' => 'Pencemaran Udara'],
+            ['name' => 'Sampah & Limbah Liar'],
+            ['name' => 'Kerusakan Lingkungan & Ruang Terbuka Hijau'],
+            ['name' => 'Infrastruktur Jalan & Jembatan Rusak'],
+            ['name' => 'Penerangan Jalan Umum'],
+            ['name' => 'Fasilitas Publik Terbengkalai'],
+            ['name' => 'Masalah Utilitas (Listrik, Air, Gas)'],
+            ['name' => 'Fasilitas Umum & Ruang Publik'],
+            ['name' => 'Laporan Lainnya'],
         ];
 
         Schema::disableForeignKeyConstraints();
@@ -34,7 +33,6 @@ class CategorySeeder extends Seeder
             $data[] = [
                 'name' => $category['name'],
                 'slug' => Str::slug($category['name']),
-                'urgency_level' => $category['urgency_level'],
             ];
         }
 
