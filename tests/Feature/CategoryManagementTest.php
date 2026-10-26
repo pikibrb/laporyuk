@@ -61,7 +61,7 @@ class CategoryManagementTest extends TestCase
             ->set('name', 'Taman Kota')
             ->call('createCategory')
             ->assertHasErrors(['name'])
-            ->assertSee('has already been taken', false);
+            ->assertSee('sudah digunakan', false);
 
         $this->assertSame(1, Category::query()->where('name', 'Taman Kota')->count());
     }

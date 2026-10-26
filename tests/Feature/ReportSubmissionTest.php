@@ -7,6 +7,7 @@ use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -26,7 +27,7 @@ class ReportSubmissionTest extends TestCase
             ->set('longitude', '98.67220000')
             ->call('submit')
             ->assertHasNoErrors()
-            ->assertSet('submittedReportId', fn ($value) => is_int($value) && $value > 0);
+            ->assertSet('submittedReportUuid', fn ($value) => is_string($value) && Str::isUuid($value));
 
         $report = Report::query()->firstOrFail();
 
@@ -160,6 +161,27 @@ class ReportSubmissionTest extends TestCase
             ->set('photo', UploadedFile::fake()->create('bukti-jalan.jpg', 10, 'image/jpeg'))
             ->call('removePhoto')
             ->assertSet('photo', null);
+    }
+
+    public function test_successful_submission_links_to_the_uuid_based_detail_page(): void
+    {
+        $category = Category::factory()->create();
+
+        $component = Volt::test('report-form')
+            ->set('title', 'Lampu taman kota padam')
+            ->set('description', 'Lampu taman padam sejak dua malam yang lalu.')
+            ->set('category_id', (string) $category->id)
+            ->set('latitude', '3.59520000')
+            ->set('longitude', '98.67220000')
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $report = Report::query()->firstOrFail();
+
+        $component
+            ->assertSee(route('laporan.show', $report))
+            ->assertSee(strtoupper(substr($report->uuid, 0, 8)))
+            ->assertDontSee('/laporan/'.$report->id);
     }
 
     public function test_successful_submission_dispatches_a_notification(): void

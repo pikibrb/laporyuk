@@ -38,8 +38,8 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <div class="mb-5">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Daftar akun warga</h1>
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Akun diperlukan untuk memantau status laporan yang Anda kirim.</p>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('Daftar akun warga') }}</h1>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{ __('Akun diperlukan untuk memantau status laporan yang Anda kirim.') }}</p>
     </div>
 
     <form wire:submit="register">
@@ -82,11 +82,11 @@ new #[Layout('layouts.guest')] class extends Component
 
         <div class="flex items-center justify-end mt-4">
             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('login') }}" wire:navigate>
-Sudah punya akun?
+{{ __('Sudah punya akun?') }}
             </a>
 
             <x-primary-button class="ms-4">
-Daftar
+{{ __('Daftar') }}
             </x-primary-button>
         </div>
     </form>

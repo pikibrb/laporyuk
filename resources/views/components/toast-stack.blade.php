@@ -114,7 +114,7 @@
                     x-on:click="dismiss(toast.id)"
                     class="-mr-1 -mt-1 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-current"
                 >
-                    <span class="sr-only">Tutup notifikasi</span>
+                    <span class="sr-only">{{ __('Tutup notifikasi') }}</span>
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>

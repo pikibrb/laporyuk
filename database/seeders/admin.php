@@ -12,14 +12,18 @@ class admin extends Seeder
      */
     public function run(): void
     {
-        User::query()->firstOrCreate(
+        $admin = User::query()->firstOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
                 'email_verified_at' => now(),
                 'password' => bcrypt('password'),
-                'role' => 'admin',
             ],
         );
+
+        // The role is intentionally not mass assignable, so promote explicitly.
+        if (! $admin->isAdmin()) {
+            $admin->forceFill(['role' => 'admin'])->save();
+        }
     }
 }

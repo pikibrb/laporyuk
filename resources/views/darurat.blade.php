@@ -12,17 +12,16 @@
 
     <div class="mx-auto max-w-4xl space-y-4">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Referensi cepat</p>
-            <h1 class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">Nomor Penting Layanan Warga</h1>
+            <p class="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">{{ __('Referensi cepat') }}</p>
+            <h1 class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ __('Nomor Penting Layanan Warga') }}</h1>
             <p class="mt-1 max-w-2xl text-sm text-gray-600 dark:text-gray-400">
-                Daftar nomor layanan yang dapat Anda hubungi di luar portal ini. Untuk masalah lingkungan
-                dan fasilitas publik, gunakan formulir laporan warga agar tercatat dan ditindaklanjuti petugas.
+                {{ __('Daftar nomor layanan yang dapat Anda hubungi di luar portal ini. Untuk masalah lingkungan dan fasilitas publik, gunakan formulir laporan warga agar tercatat dan ditindaklanjuti petugas.') }}
             </p>
         </div>
 
         <div class="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-700 dark:bg-gray-900">
-            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Nomor layanan</h2>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Ketuk nomor untuk langsung menelepon dari perangkat Anda.</p>
+            <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ __('Nomor layanan') }}</h2>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Ketuk nomor untuk langsung menelepon dari perangkat Anda.') }}</p>
 
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
                 @foreach ($hotlines as $hotline)
@@ -34,58 +33,55 @@
                             {{ $hotline['number'] }}
                         </span>
                         <span class="min-w-0">
-                            <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $hotline['label'] }}</span>
-                            <span class="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">{{ $hotline['description'] }}</span>
+                            <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ __($hotline['label']) }}</span>
+                            <span class="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">{{ __($hotline['description']) }}</span>
                         </span>
                     </a>
                 @endforeach
             </div>
 
             <p class="mt-3 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
-                Sebagian daerah memakai nomor berbeda untuk pemadam kebakaran atau ambulans. Simpan juga nomor
-                layanan darurat kota Anda.
+                {{ __('Sebagian daerah memakai nomor berbeda untuk pemadam kebakaran atau ambulans. Simpan juga nomor layanan darurat kota Anda.') }}
             </p>
         </div>
 
         <div class="grid gap-4 lg:grid-cols-3">
             <div class="rounded-lg border border-gray-200 bg-white p-4 sm:p-6 lg:col-span-2 dark:border-gray-700 dark:bg-gray-900">
-                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Portal ini untuk laporan non-darurat</h2>
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ __('Portal ini untuk laporan non-darurat') }}</h2>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Portal Lapor Yuk! memuat laporan lingkungan dan fasilitas publik, bukan keadaan darurat seperti
-                    kebakaran, kecelakaan, atau kebutuhan medis.
+                    {{ __('Portal Lapor Yuk! memuat laporan lingkungan dan fasilitas publik, bukan keadaan darurat seperti kebakaran, kecelakaan, atau kebutuhan medis.') }}
                 </p>
 
                 <ul class="mt-3 space-y-3 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
                     <li class="flex gap-2">
                         <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[11px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">1</span>
-                        Untuk keadaan darurat, segera hubungi nomor layanan di atas.
+                        {{ __('Untuk keadaan darurat, segera hubungi nomor layanan di atas.') }}
                     </li>
                     <li class="flex gap-2">
                         <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[11px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">2</span>
-                        Untuk sampah menumpuk, pencemaran, jalan rusak, atau fasilitas umum yang terbengkalai, buat laporan warga.
+                        {{ __('Untuk sampah menumpuk, pencemaran, jalan rusak, atau fasilitas umum yang terbengkalai, buat laporan warga.') }}
                     </li>
                     <li class="flex gap-2">
                         <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[11px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">3</span>
-                        Laporan warga dapat dikirim tanpa akun dan dipantau statusnya hingga selesai.
+                        {{ __('Laporan warga dapat dikirim tanpa akun dan dipantau statusnya hingga selesai.') }}
                     </li>
                 </ul>
 
                 <a href="{{ route('lapor') }}" class="mt-4 inline-block rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800">
-                    Buat laporan warga
+                    {{ __('Buat laporan warga') }}
                 </a>
             </div>
 
             <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Kapan menggunakan portal</h2>
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ __('Kapan menggunakan portal') }}</h2>
                 <p class="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
-                    Gunakan portal bila masalahnya berkaitan dengan lingkungan atau fasilitas publik dan tidak
-                    membahayakan nyawa secara langsung.
+                    {{ __('Gunakan portal bila masalahnya berkaitan dengan lingkungan atau fasilitas publik dan tidak membahayakan nyawa secara langsung.') }}
                 </p>
                 <a href="{{ route('home') }}" class="mt-3 inline-block text-xs font-medium text-blue-700 hover:underline dark:text-blue-400">
-                    Lihat peta laporan warga
+                    {{ __('Lihat peta laporan warga') }}
                 </a>
                 <a href="{{ route('feedback') }}" class="mt-1 inline-block text-xs font-medium text-blue-700 hover:underline dark:text-blue-400">
-                    Kirim masukan &amp; saran
+                    {{ __('Kirim masukan & saran') }}
                 </a>
             </div>
         </div>

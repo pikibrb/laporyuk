@@ -2,6 +2,7 @@
 
 use App\Models\Feedback;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 
@@ -18,16 +19,24 @@ new class extends Component {
 
     public function submit(): void
     {
+        $rateLimitKey = 'feedback-submit:'.(Auth::id() ?? request()->ip());
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $this->addError('message', __('Terlalu banyak masukan dikirim. Coba lagi dalam :seconds detik.', ['seconds' => RateLimiter::availableIn($rateLimitKey)]));
+
+            return;
+        }
+
         $validated = $this->validate([
             'type' => ['required', Rule::in(array_keys(Feedback::TYPE_LABELS))],
             'message' => ['required', 'string', 'min:10', 'max:2000'],
             'name' => ['nullable', 'string', 'max:100'],
             'contact' => ['nullable', 'string', 'max:150'],
         ], [], [
-            'type' => 'Jenis masukan',
-            'message' => 'Isi masukan',
-            'name' => 'Nama',
-            'contact' => 'Kontak',
+            'type' => __('Jenis masukan'),
+            'message' => __('Isi masukan'),
+            'name' => __('Nama'),
+            'contact' => __('Kontak'),
         ]);
 
         Feedback::create([
@@ -38,11 +47,13 @@ new class extends Component {
             'contact' => ($validated['contact'] ?? null) ?: null,
         ]);
 
+        RateLimiter::hit($rateLimitKey, 600);
+
         $this->reset(['message', 'name', 'contact']);
         $this->type = Feedback::TYPE_SUGGESTION;
         $this->resetValidation();
         $this->submitted = true;
-        $this->dispatch('notify', type: 'success', message: 'Masukan Anda terkirim. Terima kasih!');
+        $this->dispatch('notify', type: 'success', message: __('Masukan Anda terkirim. Terima kasih!'));
     }
 
     public function resetForm(): void
@@ -63,23 +74,23 @@ new class extends Component {
                     </svg>
                 </span>
                 <div class="min-w-0">
-                    <p class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">Terima kasih atas masukan Anda</p>
+                    <p class="text-sm font-semibold text-emerald-900 dark:text-emerald-200">{{ __('Terima kasih atas masukan Anda') }}</p>
                     <p class="mt-1 text-sm text-emerald-800 dark:text-emerald-300">
-                        Masukan Anda sudah kami terima dan akan ditinjau oleh tim pengelola portal.
+                        {{ __('Masukan Anda sudah kami terima dan akan ditinjau oleh tim pengelola portal.') }}
                     </p>
                 </div>
             </div>
 
             <div class="mt-4">
                 <button type="button" wire:click="resetForm" class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-                    Kirim masukan lain
+                    {{ __('Kirim masukan lain') }}
                 </button>
             </div>
         </div>
     @else
         @if ($errors->any())
             <div class="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
-                <p class="font-medium">Masukan belum bisa dikirim.</p>
+                <p class="font-medium">{{ __('Masukan belum bisa dikirim.') }}</p>
                 <ul class="mt-1 list-inside list-disc space-y-0.5 text-xs">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -90,14 +101,14 @@ new class extends Component {
 
         <form wire:submit="submit" class="space-y-4">
             <div>
-                <label for="feedback-type" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Jenis masukan</label>
+                <label for="feedback-type" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Jenis masukan') }}</label>
                 <select
                     id="feedback-type"
                     wire:model="type"
                     class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 @error('type') border-red-300 @enderror"
                 >
                     @foreach (\App\Models\Feedback::TYPE_LABELS as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                        <option value="{{ $value }}">{{ __($label) }}</option>
                     @endforeach
                 </select>
                 @error('type')
@@ -106,12 +117,12 @@ new class extends Component {
             </div>
 
             <div>
-                <label for="feedback-message" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Isi masukan</label>
+                <label for="feedback-message" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Isi masukan') }}</label>
                 <textarea
                     id="feedback-message"
                     wire:model="message"
                     rows="5"
-                    placeholder="Tuliskan saran, kritik, atau apresiasi Anda untuk portal ini..."
+                    placeholder="{{ __('Tuliskan saran, kritik, atau apresiasi Anda untuk portal ini...') }}"
                     class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 @error('message') border-red-300 @enderror"
                 ></textarea>
                 @error('message')
@@ -122,13 +133,13 @@ new class extends Component {
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label for="feedback-name" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Nama <span class="font-normal text-gray-500 dark:text-gray-400">(opsional)</span>
+                        {{ __('Nama') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ __('(opsional)') }}</span>
                     </label>
                     <input
                         id="feedback-name"
                         type="text"
                         wire:model="name"
-                        placeholder="Kosongkan untuk anonim"
+                        placeholder="{{ __('Kosongkan untuk anonim') }}"
                         class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 @error('name') border-red-300 @enderror"
                     >
                     @error('name')
@@ -138,16 +149,16 @@ new class extends Component {
 
                 <div>
                     <label for="feedback-contact" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Kontak <span class="font-normal text-gray-500 dark:text-gray-400">(opsional)</span>
+                        {{ __('Kontak') }} <span class="font-normal text-gray-500 dark:text-gray-400">{{ __('(opsional)') }}</span>
                     </label>
                     <input
                         id="feedback-contact"
                         type="text"
                         wire:model="contact"
-                        placeholder="Email atau nomor telepon"
+                        placeholder="{{ __('Email atau nomor telepon') }}"
                         class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 @error('contact') border-red-300 @enderror"
                     >
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Diisi hanya bila Anda bersedia dihubungi.</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Diisi hanya bila Anda bersedia dihubungi.') }}</p>
                     @error('contact')
                         <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ $message }}</span>
                     @enderror
@@ -156,11 +167,11 @@ new class extends Component {
 
             <div class="flex flex-col gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    {{ Auth::check() ? 'Masukan tercatat atas nama akun Anda.' : 'Masukan dikirim secara anonim tanpa akun.' }}
+                    {{ Auth::check() ? __('Masukan tercatat atas nama akun Anda.') : __('Masukan dikirim secara anonim tanpa akun.') }}
                 </p>
                 <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="submit">
-                    <span wire:loading.remove wire:target="submit">Kirim masukan</span>
-                    <span wire:loading wire:target="submit">Mengirim...</span>
+                    <span wire:loading.remove wire:target="submit">{{ __('Kirim masukan') }}</span>
+                    <span wire:loading wire:target="submit">{{ __('Mengirim...') }}</span>
                 </button>
             </div>
         </form>

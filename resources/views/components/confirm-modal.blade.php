@@ -90,11 +90,11 @@
 
                 <div class="min-w-0 flex-1">
                     <h2 id="confirm-modal-{{ $name }}-title" class="text-base font-semibold text-gray-900 dark:text-gray-100">
-                        {{ $title }}
+                        {{ __($title) }}
                     </h2>
 
                     @if ($message)
-                        <p class="mt-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ $message }}</p>
+                        <p class="mt-1 text-sm leading-relaxed text-gray-600 dark:text-gray-400">{{ __($message) }}</p>
                     @endif
 
                     {{ $slot }}
@@ -107,14 +107,14 @@
                     x-on:click="show = false"
                     class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-900"
                 >
-                    {{ $cancelLabel }}
+                    {{ __($cancelLabel) }}
                 </button>
 
                 @isset($confirm)
                     {{ $confirm }}
                 @elseif ($action)
                     <button type="submit" class="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 {{ $style['button'] }}">
-                        {{ $confirmLabel }}
+                        {{ __($confirmLabel) }}
                     </button>
                 @endif
             </div>

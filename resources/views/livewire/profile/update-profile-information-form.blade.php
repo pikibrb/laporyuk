@@ -40,7 +40,7 @@ new class extends Component
 
         $user->save();
 
-        $this->dispatch('notify', type: 'success', message: 'Profil berhasil diperbarui.');
+        $this->dispatch('notify', type: 'success', message: __('Profil berhasil diperbarui.'));
     }
 
     /**
@@ -65,23 +65,23 @@ new class extends Component
 <section>
     <header>
         <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100">
-            Informasi Profil
+            {{ __('Informasi Profil') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Perbarui nama dan alamat email akun Anda.
+            {{ __('Perbarui nama dan alamat email akun Anda.') }}
         </p>
     </header>
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
         <div>
-            <x-input-label for="name" value="Nama" />
+            <x-input-label for="name" :value="__('Nama')" />
             <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
         <div>
-            <x-input-label for="email" value="Email" />
+            <x-input-label for="email" :value="__('Email')" />
             <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
@@ -105,7 +105,7 @@ new class extends Component
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>Simpan</x-primary-button>
+            <x-primary-button>{{ __('Simpan') }}</x-primary-button>
         </div>
     </form>
 </section>

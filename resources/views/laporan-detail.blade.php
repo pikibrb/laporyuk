@@ -4,11 +4,11 @@
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Kembali ke peta
+            {{ __('Kembali ke peta') }}
         </a>
 
         <div class="mt-3">
-            <livewire:report-detail :report-id="$report->id" />
+            <livewire:report-detail :report-uuid="$report->uuid" />
         </div>
     </div>
 </x-app-layout>

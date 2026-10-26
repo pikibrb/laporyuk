@@ -15,7 +15,7 @@
     @unless ($compact)
         <span class="min-w-0">
             <span class="block text-base font-bold leading-tight text-gray-900 dark:text-gray-100">Lapor Yuk!</span>
-            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">Peta Laporan Warga</span>
+            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ __('Peta Laporan Warga') }}</span>
         </span>
     @endunless
 </a>

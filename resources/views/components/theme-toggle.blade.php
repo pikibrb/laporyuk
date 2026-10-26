@@ -18,8 +18,8 @@
         },
     }"
     @click="toggle()"
-    :title="dark ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'"
-    :aria-label="dark ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'"
+    :title="dark ? '{{ __('Ganti ke tema terang') }}' : '{{ __('Ganti ke tema gelap') }}'"
+    :aria-label="dark ? '{{ __('Ganti ke tema terang') }}' : '{{ __('Ganti ke tema gelap') }}'"
     :aria-pressed="dark"
     {{ $attributes->merge(['class' => $classes]) }}
 >
@@ -32,6 +32,6 @@
     </svg>
 
     @unless ($compact)
-        <span class="text-xs font-medium" x-text="dark ? 'Terang' : 'Gelap'"></span>
+        <span class="text-xs font-medium" x-text="dark ? '{{ __('Terang') }}' : '{{ __('Gelap') }}'"></span>
     @endunless
 </button>

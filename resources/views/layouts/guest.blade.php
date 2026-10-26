@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="Portal pelaporan warga berbasis peta untuk pemantauan masalah lingkungan dan fasilitas publik.">
+        <meta name="description" content="{{ __('Portal pelaporan warga berbasis peta untuk pemantauan masalah lingkungan dan fasilitas publik.') }}">
 
         <title>{{ config('app.name', 'Lapor Yuk!') }}</title>
 
@@ -31,11 +31,13 @@
                     <x-brand />
 
                     <div class="flex items-center gap-4">
-                        <a href="{{ route('home') }}" class="text-sm font-medium text-gray-600 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400">Peta Warga</a>
-                        <a href="{{ route('feedback') }}" class="hidden text-sm font-medium text-gray-600 hover:text-blue-700 sm:inline dark:text-gray-400 dark:hover:text-blue-400">Masukan</a>
+                        <a href="{{ route('home') }}" class="text-sm font-medium text-gray-600 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400">{{ __('Peta Warga') }}</a>
+                        <a href="{{ route('feedback') }}" class="hidden text-sm font-medium text-gray-600 hover:text-blue-700 sm:inline dark:text-gray-400 dark:hover:text-blue-400">{{ __('Masukan') }}</a>
                         <a href="{{ route('darurat') }}" class="text-sm font-medium text-gray-600 hover:text-blue-700 dark:text-gray-400 dark:hover:text-blue-400">
-                            Nomor Penting
+                            {{ __('Nomor Penting') }}
                         </a>
+
+                        <x-locale-switcher />
 
                         <x-theme-toggle compact />
                     </div>
@@ -49,8 +51,8 @@
                     </div>
 
                     <p class="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
-                        Laporan warga dapat dikirim tanpa akun melalui
-                        <a href="{{ route('lapor') }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">formulir laporan</a>.
+                        {{ __('Laporan warga dapat dikirim tanpa akun melalui') }}
+                        <a href="{{ route('lapor') }}" class="font-medium text-blue-700 hover:underline dark:text-blue-400">{{ __('formulir laporan') }}</a>.
                     </p>
                 </div>
             </main>

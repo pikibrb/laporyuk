@@ -86,6 +86,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Supported Locales
+    |--------------------------------------------------------------------------
+    |
+    | These are the languages visitors may switch between. Indonesian is the
+    | source language of the interface, so translated string keys are the
+    | Indonesian copy itself and live in lang/en.json.
+    |
+    */
+
+    'supported_locales' => [
+        'id' => 'Bahasa Indonesia',
+        'en' => 'English',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

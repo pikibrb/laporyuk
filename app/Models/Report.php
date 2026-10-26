@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 #[Fillable(['user_id', 'category_id', 'title', 'description', 'phone', 'photo_path', 'latitude', 'longitude', 'status'])]
 class Report extends Model
@@ -43,6 +44,10 @@ class Report extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (Report $report): void {
+            $report->uuid ??= (string) Str::uuid();
+        });
+
         static::created(function (Report $report): void {
             $report->statusHistories()->create([
                 'user_id' => $report->user_id,
@@ -50,6 +55,14 @@ class Report extends Model
                 'notes' => 'Laporan diterima dan menunggu verifikasi petugas.',
             ]);
         });
+    }
+
+    /**
+     * Use the unguessable uuid in URLs instead of the sequential primary key.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
     }
 
     public function user(): BelongsTo
@@ -100,15 +113,25 @@ class Report extends Model
     protected function statusLabel(): Attribute
     {
         return Attribute::get(
-            fn (): string => self::STATUS_LABELS[$this->status] ?? ucfirst($this->status),
+            fn (): string => __(self::STATUS_LABELS[$this->status] ?? ucfirst($this->status)),
         );
     }
 
+    /**
+     * Evidence photos are streamed by the application so the portal does not
+     * depend on a public storage symlink being present on the server.
+     */
     protected function photoUrl(): Attribute
     {
-        return Attribute::get(
-            fn (): ?string => $this->photo_path ? Storage::disk('public')->url($this->photo_path) : null,
-        );
+        return Attribute::get(function (): ?string {
+            if (! $this->photo_path) {
+                return null;
+            }
+
+            return Storage::disk('public')->exists($this->photo_path)
+                ? route('laporan.foto', $this)
+                : null;
+        });
     }
 
     /**
@@ -132,21 +155,28 @@ class Report extends Model
         $minutes = (int) $this->created_at->diffInMinutes();
 
         return match (true) {
-            $minutes < 1 => 'Baru saja',
-            $minutes < 60 => "{$minutes} menit lalu",
-            $minutes < 1440 => intdiv($minutes, 60).' jam lalu',
-            $minutes < 2880 => 'Kemarin',
+            $minutes < 1 => __('Baru saja'),
+            $minutes < 60 => __(':count menit lalu', ['count' => $minutes]),
+            $minutes < 1440 => __(':count jam lalu', ['count' => intdiv($minutes, 60)]),
+            $minutes < 2880 => __('Kemarin'),
             default => $this->created_at->format('d M Y'),
         };
     }
 
     /**
-     * @return array{id: int, title: string, category: string, status: string, status_label: string, latitude: float, longitude: float, color: string, url: string, created_ago: string}
+     * Short public reference shown to warga instead of the internal id.
+     */
+    public function reference(): string
+    {
+        return strtoupper(substr((string) $this->uuid, 0, 8));
+    }
+
+    /**
+     * @return array{title: string, category: string, status: string, status_label: string, latitude: float, longitude: float, color: string, url: string, created_ago: string}
      */
     public function toMapMarker(): array
     {
         return [
-            'id' => $this->id,
             'title' => $this->title,
             'category' => $this->category?->name ?? 'Tanpa kategori',
             'status' => $this->status,

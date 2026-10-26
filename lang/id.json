@@ -1,0 +1,19 @@
+{
+    "A new verification link has been sent to the email address you provided during registration.": "Tautan verifikasi baru telah dikirim ke alamat email yang Anda gunakan saat mendaftar.",
+    "A new verification link has been sent to your email address.": "Tautan verifikasi baru telah dikirim ke alamat email Anda.",
+    "Click here to re-send the verification email.": "Klik di sini untuk mengirim ulang email verifikasi.",
+    "Confirm": "Konfirmasi",
+    "Confirm Password": "Konfirmasi Kata Sandi",
+    "Email": "Email",
+    "Email Password Reset Link": "Kirim Tautan Reset Kata Sandi",
+    "Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.": "Lupa kata sandi? Tidak masalah. Beri tahu alamat email Anda dan kami akan mengirimkan tautan untuk membuat kata sandi baru.",
+    "Log Out": "Keluar",
+    "Name": "Nama",
+    "Password": "Kata Sandi",
+    "Resend Verification Email": "Kirim Ulang Email Verifikasi",
+    "Reset Password": "Reset Kata Sandi",
+    "Saved.": "Tersimpan.",
+    "Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.": "Terima kasih telah mendaftar! Sebelum memulai, verifikasi alamat email Anda melalui tautan yang baru kami kirimkan. Bila belum menerima emailnya, kami akan mengirim ulang.",
+    "This is a secure area of the application. Please confirm your password before continuing.": "Ini adalah area aman aplikasi. Konfirmasi kata sandi Anda sebelum melanjutkan.",
+    "Your email address is unverified.": "Alamat email Anda belum diverifikasi."
+}

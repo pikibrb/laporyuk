@@ -11,5 +11,5 @@
 
 <span {{ $attributes->merge(['class' => 'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium '.($styles[$status] ?? $styles[\App\Models\Report::STATUS_PENDING])]) }}>
     <span class="h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
-    {{ \App\Models\Report::STATUS_LABELS[$status] ?? ucfirst($status) }}
+    {{ __(\App\Models\Report::STATUS_LABELS[$status] ?? ucfirst($status)) }}
 </span>

@@ -1,0 +1,42 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+
+return new class extends Migration
+{
+    /**
+     * Give every report an unguessable public identifier so URLs never leak
+     * sequential record ids.
+     */
+    public function up(): void
+    {
+        Schema::table('reports', function (Blueprint $table) {
+            $table->uuid('uuid')->nullable()->after('id');
+        });
+
+        DB::table('reports')->whereNull('uuid')->select('id')->chunkById(200, function ($reports): void {
+            foreach ($reports as $report) {
+                DB::table('reports')->where('id', $report->id)->update([
+                    'uuid' => (string) Str::uuid(),
+                ]);
+            }
+        });
+
+        Schema::table('reports', function (Blueprint $table) {
+            $table->uuid('uuid')->nullable(false)->change();
+            $table->unique('uuid');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('reports', function (Blueprint $table) {
+            $table->dropUnique(['uuid']);
+            $table->dropColumn('uuid');
+        });
+    }
+};

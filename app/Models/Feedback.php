@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'type', 'name', 'contact', 'message'])]
+#[Fillable(['user_id', 'type', 'name', 'contact', 'message', 'response', 'responded_by', 'responded_at'])]
 class Feedback extends Model
 {
     use HasFactory;
@@ -28,8 +29,35 @@ class Feedback extends Model
         self::TYPE_OTHER => 'Lainnya',
     ];
 
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'responded_at' => 'datetime',
+        ];
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function respondedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'responded_by');
+    }
+
+    public function isResponded(): bool
+    {
+        return $this->responded_at !== null;
+    }
+
+    protected function typeLabel(): Attribute
+    {
+        return Attribute::get(
+            fn (): string => __(self::TYPE_LABELS[$this->type] ?? ucfirst($this->type)),
+        );
     }
 }

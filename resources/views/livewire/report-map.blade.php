@@ -3,6 +3,7 @@
 use App\Models\Category;
 use App\Models\Report;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
 new class extends Component {
@@ -39,6 +40,7 @@ new class extends Component {
             'reports' => $reports->take(6),
             'total' => $reports->count(),
             'categories' => Category::query()->orderBy('name')->get(),
+            'isAdmin' => Auth::user()?->isAdmin() ?? false,
         ];
     }
 
@@ -77,20 +79,20 @@ new class extends Component {
                 <input
                     type="search"
                     wire:model.live.debounce.400ms="search"
-                    placeholder="Cari judul atau deskripsi laporan..."
+                    placeholder="{{ __('Cari judul atau deskripsi laporan...') }}"
                     class="w-full rounded-md border-gray-300 pl-9 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600"
                 >
             </div>
 
             <select wire:model.live="status" class="rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600">
-                <option value="">Semua status</option>
+                <option value="">{{ __('Semua status') }}</option>
                 @foreach (\App\Models\Report::STATUS_LABELS as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
                 @endforeach
             </select>
 
             <select wire:model.live="category" class="rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600">
-                <option value="">Semua kategori</option>
+                <option value="">{{ __('Semua kategori') }}</option>
                 @foreach ($categories as $item)
                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                 @endforeach
@@ -100,10 +102,10 @@ new class extends Component {
         <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
             <span class="inline-flex items-center gap-1.5">
                 <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
-                {{ $total }} laporan ditampilkan · pembaruan otomatis tiap 30 detik
+                {{ __(':count laporan ditampilkan · pembaruan otomatis tiap 30 detik', ['count' => $total]) }}
             </span>
             <button type="button" wire:click="resetFilters" class="font-medium text-blue-700 hover:underline dark:text-blue-400">
-                Reset filter
+                {{ __('Reset filter') }}
             </button>
         </div>
     </div>
@@ -114,9 +116,9 @@ new class extends Component {
                 <div id="warga-map" wire:ignore class="h-[380px] w-full sm:h-[460px]"></div>
 
                 <div class="pointer-events-none absolute bottom-2 left-2 z-[500] space-y-1.5 rounded-md border border-gray-200 bg-white/95 px-3 py-2 text-[11px] text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-400">
-                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span> Menunggu</p>
-                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-700"></span> Diproses</p>
-                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-600"></span> Selesai</p>
+                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span> {{ __('Menunggu') }}</p>
+                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-700"></span> {{ __('Diproses') }}</p>
+                    <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-600"></span> {{ __('Selesai') }}</p>
                 </div>
 
                 <button
@@ -124,14 +126,14 @@ new class extends Component {
                     onclick="window.wargaMapLocate && window.wargaMapLocate()"
                     class="absolute right-2 top-2 z-[500] rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
-                    Lokasi saya
+                    {{ __('Lokasi saya') }}
                 </button>
 
                 @if ($total === 0)
                     <div class="absolute inset-0 z-[450] flex items-center justify-center bg-white/75 p-6 text-center dark:bg-gray-900/75">
                         <div>
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Tidak ada laporan yang cocok</p>
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Coba ubah kata kunci atau reset filter.</p>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Tidak ada laporan yang cocok') }}</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Coba ubah kata kunci atau reset filter.') }}</p>
                         </div>
                     </div>
                 @endif
@@ -140,8 +142,8 @@ new class extends Component {
 
         <div class="flex flex-col rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
             <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Laporan terbaru</h2>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{ $reports->count() }} dari {{ $total }}</span>
+                <h2 class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ __('Laporan terbaru') }}</h2>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ __(':shown dari :total', ['shown' => $reports->count(), 'total' => $total]) }}</span>
             </div>
 
             <ul class="flex-1 divide-y divide-gray-100 dark:divide-gray-800">
@@ -163,16 +165,18 @@ new class extends Component {
                     </li>
                 @empty
                     <li class="px-4 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
-                        Belum ada laporan pada filter ini.
+                        {{ __('Belum ada laporan pada filter ini.') }}
                     </li>
                 @endforelse
             </ul>
 
-            <div class="border-t border-gray-100 p-3 dark:border-gray-800">
-                <a href="{{ route('lapor') }}" class="block rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800">
-                    Buat laporan baru
-                </a>
-            </div>
+            @unless ($isAdmin)
+                <div class="border-t border-gray-100 p-3 dark:border-gray-800">
+                    <a href="{{ route('lapor') }}" class="block rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800">
+                        {{ __('Buat laporan baru') }}
+                    </a>
+                </div>
+            @endunless
         </div>
     </div>
 </div>
@@ -254,7 +258,7 @@ new class extends Component {
 
         window.wargaMapLocate = () => {
             if (!navigator.geolocation) {
-                window.alert('Perangkat tidak mendukung deteksi lokasi.');
+                window.alert(@js(__('Perangkat tidak mendukung deteksi lokasi.')));
                 return;
             }
 
@@ -270,13 +274,13 @@ new class extends Component {
                         weight: 2,
                         fillColor: '#1d4ed8',
                         fillOpacity: 1,
-                    }).addTo(map).bindPopup('Lokasi Anda');
+                    }).addTo(map).bindPopup(@js(__('Lokasi Anda')));
                 }
 
                 map.setView(point, 15);
                 userMarker.openPopup();
             }, () => {
-                window.alert('Tidak dapat mengakses lokasi. Pastikan izin lokasi sudah diberikan.');
+                window.alert(@js(__('Tidak dapat mengakses lokasi. Pastikan izin lokasi sudah diberikan.')));
             }, { enableHighAccuracy: true });
         };
 

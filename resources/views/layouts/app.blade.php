@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="description" content="Portal pelaporan warga berbasis peta untuk pemantauan masalah lingkungan dan fasilitas publik secara real-time.">
+        <meta name="description" content="{{ __('Portal pelaporan warga berbasis peta untuk pemantauan masalah lingkungan dan fasilitas publik secara real-time.') }}">
 
         <title>{{ config('app.name', 'Lapor Yuk!') }}</title>
 
@@ -35,13 +35,15 @@
                         <x-brand />
 
                         <div class="flex items-center gap-2">
+                            <x-locale-switcher />
+
                             <x-theme-toggle compact />
 
                             <a href="{{ route('darurat') }}" class="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                                 <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h2.28a1 1 0 01.95.68l1.1 3.3a1 1 0 01-.27 1.06l-1.2 1.1a11 11 0 005.5 5.5l1.1-1.2a1 1 0 011.06-.27l3.3 1.1a1 1 0 01.68.95V19a2 2 0 01-2 2h-1A16 16 0 013 6V5z"/>
                                 </svg>
-                                Nomor Penting
+                                {{ __('Nomor Penting') }}
                             </a>
                         </div>
                     </div>
@@ -59,10 +61,10 @@
 
                 <footer class="hidden border-t border-gray-200 px-8 py-4 text-xs text-gray-500 lg:block dark:border-gray-700 dark:text-gray-400">
                     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
-                        <p>Lapor Yuk! — portal pelaporan warga untuk masalah lingkungan dan fasilitas publik.</p>
+                        <p>{{ __('Lapor Yuk! — portal pelaporan warga untuk masalah lingkungan dan fasilitas publik.') }}</p>
                         <p class="inline-flex items-center gap-1.5">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500"></span>
-                            Peta diperbarui otomatis
+                            {{ __('Peta diperbarui otomatis') }}
                         </p>
                     </div>
                 </footer>
