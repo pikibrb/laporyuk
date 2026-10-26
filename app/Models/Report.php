@@ -25,7 +25,6 @@ class Report extends Model
 
     public const STATUS_REJECTED = 'rejected';
 
-    /** @var array<string, string> */
     public const STATUS_LABELS = [
         self::STATUS_PENDING => 'Menunggu',
         self::STATUS_PROCESSING => 'Diproses',
@@ -33,7 +32,6 @@ class Report extends Model
         self::STATUS_REJECTED => 'Ditolak',
     ];
 
-    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -57,9 +55,6 @@ class Report extends Model
         });
     }
 
-    /**
-     * Use the unguessable uuid in URLs instead of the sequential primary key.
-     */
     public function getRouteKeyName(): string
     {
         return 'uuid';
@@ -85,9 +80,6 @@ class Report extends Model
         return $this->hasMany(StatusHistory::class);
     }
 
-    /**
-     * @param  array{search?: string|null, status?: string|null, category?: string|null}  $filters
-     */
     public function scopeFilter(Builder $query, array $filters): Builder
     {
         return $query
@@ -117,10 +109,6 @@ class Report extends Model
         );
     }
 
-    /**
-     * Evidence photos are streamed by the application so the portal does not
-     * depend on a public storage symlink being present on the server.
-     */
     protected function photoUrl(): Attribute
     {
         return Attribute::get(function (): ?string {
@@ -134,9 +122,6 @@ class Report extends Model
         });
     }
 
-    /**
-     * Tailwind classes used by the map marker for the current status.
-     */
     public function markerColor(): string
     {
         return match ($this->status) {
@@ -147,9 +132,6 @@ class Report extends Model
         };
     }
 
-    /**
-     * Short, human readable age used across the portal lists.
-     */
     public function createdAgo(): string
     {
         $minutes = (int) $this->created_at->diffInMinutes();
@@ -163,17 +145,11 @@ class Report extends Model
         };
     }
 
-    /**
-     * Short public reference shown to warga instead of the internal id.
-     */
     public function reference(): string
     {
         return strtoupper(substr((string) $this->uuid, 0, 8));
     }
 
-    /**
-     * @return array{title: string, category: string, status: string, status_label: string, latitude: float, longitude: float, color: string, url: string, created_ago: string}
-     */
     public function toMapMarker(): array
     {
         return [

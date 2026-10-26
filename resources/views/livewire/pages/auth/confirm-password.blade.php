@@ -9,9 +9,6 @@ new #[Layout('layouts.guest')] class extends Component
 {
     public string $password = '';
 
-    /**
-     * Confirm the current user's password.
-     */
     public function confirmPassword(): void
     {
         $this->validate([
@@ -39,7 +36,7 @@ new #[Layout('layouts.guest')] class extends Component
     </div>
 
     <form wire:submit="confirmPassword">
-        <!-- Password -->
+
         <div>
             <x-input-label for="password" :value="__('Password')" />
 

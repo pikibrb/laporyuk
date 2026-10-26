@@ -20,11 +20,6 @@ new class extends Component {
         }
     }
 
-    public function refresh(): void
-    {
-        $this->dispatchMarkers();
-    }
-
     public function resetFilters(): void
     {
         $this->reset('search', 'status', 'category');
@@ -37,6 +32,8 @@ new class extends Component {
 
         return [
             'markers' => $reports->map->toMapMarker()->values()->all(),
+            'filters' => $this->filters(),
+            'dataUrl' => route('laporan.peta'),
             'reports' => $reports->take(6),
             'total' => $reports->count(),
             'categories' => Category::query()->orderBy('name')->get(),
@@ -44,30 +41,32 @@ new class extends Component {
         ];
     }
 
-    /**
-     * @return Collection<int, Report>
-     */
     private function reports(): Collection
     {
         return Report::query()
-            ->with('category')
-            ->filter([
-                'search' => $this->search !== '' ? $this->search : null,
-                'status' => $this->status !== '' ? $this->status : null,
-                'category' => $this->category !== '' ? $this->category : null,
-            ])
+            ->with('category:id,name')
+            ->filter($this->filters())
             ->latest()
             ->limit(50)
             ->get();
     }
 
+    private function filters(): array
+    {
+        return [
+            'search' => $this->search !== '' ? $this->search : null,
+            'status' => $this->status !== '' ? $this->status : null,
+            'category' => $this->category !== '' ? $this->category : null,
+        ];
+    }
+
     private function dispatchMarkers(): void
     {
-        $this->dispatch('report-map-updated', markers: $this->reports()->map->toMapMarker()->values()->all());
+        $this->dispatch('report-map-updated', markers: $this->reports()->map->toMapMarker()->values()->all(), filters: $this->filters());
     }
 }; ?>
 
-<div wire:poll.30s="refresh" class="space-y-4">
+<div class="space-y-4">
     <div class="rounded-lg border border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-700 dark:bg-gray-900">
         <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <div class="relative sm:col-span-2">
@@ -113,7 +112,7 @@ new class extends Component {
     <div class="grid gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2">
             <div class="isolate relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
-                <div id="warga-map" wire:ignore class="h-[380px] w-full sm:h-[460px]"></div>
+                <div id="warga-map" wire:ignore data-map-url="{{ $dataUrl }}" class="h-[380px] w-full sm:h-[460px]"></div>
 
                 <div class="pointer-events-none absolute bottom-2 left-2 z-[500] space-y-1.5 rounded-md border border-gray-200 bg-white/95 px-3 py-2 text-[11px] text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900/95 dark:text-gray-400">
                     <p class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span> {{ __('Menunggu') }}</p>
@@ -200,6 +199,11 @@ new class extends Component {
         }).addTo(map);
 
         const markerLayer = L.layerGroup().addTo(map);
+        const dataUrl = container.dataset.mapUrl;
+        let currentFilters = @js($filters);
+        let lastSignature = null;
+        let lastEtag = null;
+        let inFlight = false;
         let hasFitted = false;
         let userMarker = null;
 
@@ -250,11 +254,80 @@ new class extends Component {
         };
 
         draw(@js($markers));
+        lastSignature = JSON.stringify(@js($markers));
 
         Livewire.on('report-map-updated', (payload) => {
             const markers = payload?.markers ?? payload?.[0]?.markers ?? [];
+            currentFilters = payload?.filters ?? payload?.[0]?.filters ?? currentFilters;
+            lastSignature = JSON.stringify(markers);
             draw(markers);
         });
+
+        const pollUrl = () => {
+            const params = new URLSearchParams();
+
+            Object.entries(currentFilters || {}).forEach(([key, value]) => {
+                if (value !== null && value !== undefined && value !== '') {
+                    params.set(key, value);
+                }
+            });
+
+            const query = params.toString();
+
+            return query ? `${dataUrl}?${query}` : dataUrl;
+        };
+
+        const refreshMarkers = async () => {
+            if (inFlight || document.visibilityState !== 'visible' || navigator.onLine === false) {
+                return;
+            }
+
+            inFlight = true;
+
+            try {
+                const headers = { Accept: 'application/json' };
+
+                if (lastEtag) {
+                    headers['If-None-Match'] = lastEtag;
+                }
+
+                const response = await fetch(pollUrl(), { headers, cache: 'no-store' });
+
+                if (response.status === 304) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    return;
+                }
+
+                lastEtag = response.headers.get('ETag') || null;
+
+                const payload = await response.json();
+                const signature = JSON.stringify(payload.markers || []);
+
+                if (signature === lastSignature) {
+                    return;
+                }
+
+                lastSignature = signature;
+                draw(payload.markers || []);
+            } catch {
+                lastEtag = null;
+            } finally {
+                inFlight = false;
+            }
+        };
+
+        window.setInterval(refreshMarkers, 30000);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                refreshMarkers();
+            }
+        });
+
+        window.addEventListener('online', refreshMarkers);
 
         window.wargaMapLocate = () => {
             if (!navigator.geolocation) {

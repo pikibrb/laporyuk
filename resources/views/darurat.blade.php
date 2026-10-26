@@ -1,15 +1,4 @@
 <x-app-layout>
-    @php
-        $hotlines = [
-            ['number' => '112', 'label' => 'Darurat nasional', 'description' => 'Satu nomor untuk semua keadaan darurat, gratis dan aktif 24 jam.'],
-            ['number' => '110', 'label' => 'Kepolisian', 'description' => 'Tindak kriminalitas, gangguan keamanan, dan kecelakaan lalu lintas.'],
-            ['number' => '113', 'label' => 'Pemadam kebakaran', 'description' => 'Kebakaran bangunan, lahan, serta penyelamatan terjebak.'],
-            ['number' => '119', 'label' => 'Ambulans & medis', 'description' => 'Kedaruratan medis dan permintaan rujukan rumah sakit.'],
-            ['number' => '115', 'label' => 'Basarnas (SAR)', 'description' => 'Pencarian dan pertolongan di darat, laut, maupun udara.'],
-            ['number' => '123', 'label' => 'PLN', 'description' => 'Gangguan listrik, kabel jatuh, dan jaringan yang membahayakan.'],
-        ];
-    @endphp
-
     <div class="mx-auto max-w-4xl space-y-4">
         <div>
             <p class="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">{{ __('Referensi cepat') }}</p>
@@ -24,20 +13,26 @@
             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Ketuk nomor untuk langsung menelepon dari perangkat Anda.') }}</p>
 
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                @foreach ($hotlines as $hotline)
+                @forelse ($hotlines as $hotline)
                     <a
-                        href="tel:{{ $hotline['number'] }}"
+                        href="tel:{{ $hotline->dialNumber() }}"
                         class="flex items-start gap-3 rounded-md border border-gray-200 p-3 transition-colors hover:border-blue-300 hover:bg-blue-50 dark:border-gray-700 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10"
                     >
                         <span class="flex h-10 w-12 shrink-0 items-center justify-center rounded-md bg-blue-50 text-sm font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
-                            {{ $hotline['number'] }}
+                            {{ $hotline->number }}
                         </span>
                         <span class="min-w-0">
-                            <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ __($hotline['label']) }}</span>
-                            <span class="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">{{ __($hotline['description']) }}</span>
+                            <span class="block text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $hotline->label }}</span>
+                            @if ($hotline->description)
+                                <span class="mt-0.5 block text-xs leading-relaxed text-gray-600 dark:text-gray-400">{{ $hotline->description }}</span>
+                            @endif
                         </span>
                     </a>
-                @endforeach
+                @empty
+                    <p class="text-sm text-gray-500 sm:col-span-2 dark:text-gray-400">
+                        {{ __('Belum ada nomor penting yang terdaftar. Hubungi petugas kelurahan untuk informasi layanan darurat setempat.') }}
+                    </p>
+                @endforelse
             </div>
 
             <p class="mt-3 border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">

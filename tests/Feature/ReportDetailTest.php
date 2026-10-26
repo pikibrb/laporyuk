@@ -202,4 +202,131 @@ class ReportDetailTest extends TestCase
 
         $this->assertDatabaseCount('comments', 5);
     }
+
+    public function test_authenticated_user_can_reply_to_a_report_comment(): void
+    {
+        $reporter = User::factory()->create(['name' => 'Pelapor Awal']);
+        $responder = User::factory()->create(['name' => 'Warga Pembalas']);
+        $report = Report::factory()->create();
+
+        $comment = $report->comments()->create([
+            'user_id' => $reporter->id,
+            'body' => 'Apakah petugas sudah meninjau lokasi ini?',
+        ]);
+
+        $this->actingAs($responder);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->call('startReply', $comment->id)
+            ->assertSet('replyToId', $comment->id)
+            ->set('reply', 'Petugas sudah meninjau lokasi kemarin sore.')
+            ->call('addReply')
+            ->assertHasNoErrors()
+            ->assertDispatched('notify', type: 'success')
+            ->assertSet('reply', '')
+            ->assertSet('replyToId', null);
+
+        $this->assertDatabaseHas('comments', [
+            'report_id' => $report->id,
+            'user_id' => $responder->id,
+            'parent_id' => $comment->id,
+            'body' => 'Petugas sudah meninjau lokasi kemarin sore.',
+        ]);
+    }
+
+    public function test_replies_are_rendered_under_the_original_comment(): void
+    {
+        $report = Report::factory()->create();
+        $comment = $report->comments()->create([
+            'user_id' => User::factory()->create(['name' => 'Warga Pertama'])->id,
+            'body' => 'Sampah menumpuk sejak minggu lalu.',
+        ]);
+        $report->comments()->create([
+            'user_id' => User::factory()->create(['name' => 'Warga Kedua'])->id,
+            'parent_id' => $comment->id,
+            'body' => 'Petugas kebersihan sudah datang pagi ini.',
+        ]);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->assertSee('Sampah menumpuk sejak minggu lalu.')
+            ->assertSee('Petugas kebersihan sudah datang pagi ini.')
+            ->assertSee('1 balasan');
+    }
+
+    public function test_reply_chain_stays_one_level_deep(): void
+    {
+        $user = User::factory()->create();
+        $report = Report::factory()->create();
+        $root = $report->comments()->create(['user_id' => $user->id, 'body' => 'Tanggapan awal.']);
+        $child = $report->comments()->create(['user_id' => $user->id, 'parent_id' => $root->id, 'body' => 'Balasan pertama.']);
+
+        $this->actingAs($user);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->call('startReply', $child->id)
+            ->assertSet('replyToId', $root->id)
+            ->set('reply', 'Balasan kedua pada utas yang sama.')
+            ->call('addReply')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('comments', [
+            'body' => 'Balasan kedua pada utas yang sama.',
+            'parent_id' => $root->id,
+        ]);
+    }
+
+    public function test_reply_must_target_a_comment_on_the_same_report(): void
+    {
+        $user = User::factory()->create();
+        $report = Report::factory()->create();
+        $otherReport = Report::factory()->create();
+
+        $foreignComment = $otherReport->comments()->create([
+            'user_id' => $user->id,
+            'body' => 'Tanggapan pada laporan lain.',
+        ]);
+
+        $this->actingAs($user);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->set('replyToId', $foreignComment->id)
+            ->set('reply', 'Balasan lintas laporan.')
+            ->call('addReply')
+            ->assertHasErrors(['reply']);
+
+        $this->assertDatabaseMissing('comments', [
+            'body' => 'Balasan lintas laporan.',
+        ]);
+    }
+
+    public function test_officer_comments_are_labelled_as_staff_responses(): void
+    {
+        $admin = User::factory()->create(['name' => 'Petugas Budi', 'role' => 'admin']);
+        $report = Report::factory()->create();
+
+        $report->comments()->create([
+            'user_id' => $admin->id,
+            'body' => 'Petugas menindaklanjuti laporan ini.',
+        ]);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->assertSee('Petugas Budi')
+            ->assertSee('Petugas')
+            ->assertSee('Petugas menindaklanjuti laporan ini.');
+    }
+
+    public function test_guest_cannot_reply_to_a_comment(): void
+    {
+        $report = Report::factory()->create();
+        $comment = $report->comments()->create([
+            'user_id' => User::factory()->create()->id,
+            'body' => 'Tanggapan warga.',
+        ]);
+
+        Volt::test('report-detail', ['reportUuid' => $report->uuid])
+            ->call('startReply', $comment->id)
+            ->assertRedirect(route('login'));
+
+        $this->assertDatabaseCount('comments', 1);
+    }
 }

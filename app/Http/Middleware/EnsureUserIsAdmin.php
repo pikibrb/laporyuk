@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
 {
-    /**
-     * Reject any request from a user without the admin role.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         abort_unless($request->user()?->isAdmin(), 403);

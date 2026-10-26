@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class admin extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $admin = User::query()->firstOrCreate(
@@ -21,7 +18,6 @@ class admin extends Seeder
             ],
         );
 
-        // The role is intentionally not mass assignable, so promote explicitly.
         if (! $admin->isAdmin()) {
             $admin->forceFill(['role' => 'admin'])->save();
         }

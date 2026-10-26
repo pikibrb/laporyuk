@@ -21,7 +21,6 @@ class Feedback extends Model
 
     public const TYPE_OTHER = 'lainnya';
 
-    /** @var array<string, string> */
     public const TYPE_LABELS = [
         self::TYPE_SUGGESTION => 'Saran',
         self::TYPE_COMPLAINT => 'Kritik',
@@ -29,9 +28,6 @@ class Feedback extends Model
         self::TYPE_OTHER => 'Lainnya',
     ];
 
-    /**
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [

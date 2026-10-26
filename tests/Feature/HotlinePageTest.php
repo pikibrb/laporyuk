@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Database\Seeders\HotlineSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,6 +12,8 @@ class HotlinePageTest extends TestCase
 
     public function test_hotline_page_is_open_to_guests_without_login(): void
     {
+        $this->seed(HotlineSeeder::class);
+
         $this->get(route('darurat'))
             ->assertOk()
             ->assertSee('Nomor Penting Layanan Warga')

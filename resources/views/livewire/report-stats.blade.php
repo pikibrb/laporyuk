@@ -1,17 +1,32 @@
 <?php
 
 use App\Models\Report;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Component;
 
 new class extends Component {
+    public string $scope = 'all';
+
+    public function mount(string $scope = 'all'): void
+    {
+        $this->scope = $scope === 'mine' ? 'mine' : 'all';
+    }
+
     public function with(): array
     {
-        $counts = Report::query()
+        $query = Report::query();
+
+        if ($this->scope === 'mine') {
+            $query->where('user_id', Auth::id() ?? 0);
+        }
+
+        $counts = $query
             ->selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
         return [
+            'isPersonal' => $this->scope === 'mine',
             'total' => (int) $counts->sum(),
             'pending' => (int) ($counts[Report::STATUS_PENDING] ?? 0),
             'processing' => (int) ($counts[Report::STATUS_PROCESSING] ?? 0),
@@ -22,7 +37,7 @@ new class extends Component {
 
 <div wire:poll.30s class="grid grid-cols-2 gap-3 lg:grid-cols-4">
     <div class="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Laporan masuk') }}</p>
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ $isPersonal ? __('Laporan saya') : __('Laporan masuk') }}</p>
         <p class="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">{{ $total }}</p>
     </div>
 

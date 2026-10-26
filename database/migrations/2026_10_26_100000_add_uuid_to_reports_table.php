@@ -8,10 +8,6 @@ use Illuminate\Support\Str;
 
 return new class extends Migration
 {
-    /**
-     * Give every report an unguessable public identifier so URLs never leak
-     * sequential record ids.
-     */
     public function up(): void
     {
         Schema::table('reports', function (Blueprint $table) {

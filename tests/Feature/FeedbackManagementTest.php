@@ -137,8 +137,7 @@ class FeedbackManagementTest extends TestCase
                 ->set('response', 'Mencoba menanggapi tanpa izin.')
                 ->call('saveResponse');
         } catch (InvalidArgumentException|HttpException) {
-            // The component aborts with 403; Livewire surfaces that as an
-            // unparsable response instead of a rendered component snapshot.
+
         }
 
         $feedback->refresh();

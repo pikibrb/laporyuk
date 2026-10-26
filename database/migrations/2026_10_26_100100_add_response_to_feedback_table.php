@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Allow admins to record a written response for each piece of feedback.
-     */
     public function up(): void
     {
         Schema::table('feedback', function (Blueprint $table) {

@@ -7,9 +7,6 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         User::query()->firstOrCreate(
@@ -20,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             admin::class,
             CategorySeeder::class,
+            HotlineSeeder::class,
             ReportSeeder::class,
         ]);
     }

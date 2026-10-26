@@ -15,6 +15,10 @@ new class extends Component {
 
     public string $comment = '';
 
+    public ?int $replyToId = null;
+
+    public string $reply = '';
+
     public function mount(string $reportUuid): void
     {
         $report = $this->resolveReport();
@@ -31,11 +35,7 @@ new class extends Component {
             return;
         }
 
-        $rateLimitKey = 'report-comment:'.Auth::id();
-
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
-            $this->addError('comment', __('Terlalu banyak tanggapan dikirim. Coba lagi dalam :seconds detik.', ['seconds' => RateLimiter::availableIn($rateLimitKey)]));
-
+        if ($this->isRateLimited()) {
             return;
         }
 
@@ -48,11 +48,78 @@ new class extends Component {
             'body' => $validated['comment'],
         ]);
 
-        RateLimiter::hit($rateLimitKey, 600);
+        RateLimiter::hit($this->rateLimitKey(), 600);
 
         $this->reset('comment');
         $this->resetValidation('comment');
         $this->dispatch('notify', type: 'success', message: __('Tanggapan Anda terkirim.'));
+    }
+
+    public function startReply(int $commentId): void
+    {
+        if (! Auth::check()) {
+            $this->redirectRoute('login');
+
+            return;
+        }
+
+        $comment = $this->resolveReport()->comments()->whereKey($commentId)->firstOrFail();
+
+        $this->replyToId = $comment->parent_id ?? $comment->id;
+        $this->reply = '';
+        $this->resetValidation('reply');
+    }
+
+    public function cancelReply(): void
+    {
+        $this->reset('replyToId', 'reply');
+        $this->resetValidation('reply');
+    }
+
+    public function addReply(): void
+    {
+        if (! Auth::check()) {
+            $this->redirectRoute('login');
+
+            return;
+        }
+
+        if ($this->isRateLimited('reply')) {
+            return;
+        }
+
+        $validated = $this->validate([
+            'reply' => ['required', 'string', 'max:1000'],
+        ], [], [
+            'reply' => __('Balasan'),
+        ]);
+
+        if (! $this->replyToId) {
+            $this->addError('reply', __('Pilih tanggapan warga yang akan dibalas.'));
+
+            return;
+        }
+
+        $report = $this->resolveReport();
+
+        $parent = $report->comments()->whereKey($this->replyToId)->first();
+
+        if (! $parent) {
+            $this->addError('reply', __('Tanggapan yang dibalas tidak ditemukan pada laporan ini.'));
+
+            return;
+        }
+
+        $report->comments()->create([
+            'user_id' => Auth::id(),
+            'parent_id' => $parent->parent_id ?? $parent->id,
+            'body' => $validated['reply'],
+        ]);
+
+        RateLimiter::hit($this->rateLimitKey(), 600);
+
+        $this->cancelReply();
+        $this->dispatch('notify', type: 'success', message: __('Balasan Anda terkirim.'));
     }
 
     public function updateStatus(): void
@@ -91,7 +158,7 @@ new class extends Component {
             ->with([
                 'category',
                 'user',
-                'comments' => fn ($query) => $query->with('user')->latest(),
+                'comments' => fn ($query) => $query->whereNull('parent_id')->with(['user', 'replies.user'])->latest(),
                 'statusHistories' => fn ($query) => $query->with('user')->latest(),
             ])
             ->where('uuid', $this->reportUuid)
@@ -107,10 +174,22 @@ new class extends Component {
         ];
     }
 
-    /**
-     * Resolve the report through its public uuid so the internal id never
-     * appears in a URL or component payload.
-     */
+    private function rateLimitKey(): string
+    {
+        return 'report-comment:'.Auth::id();
+    }
+
+    private function isRateLimited(string $field = 'comment'): bool
+    {
+        if (RateLimiter::tooManyAttempts($this->rateLimitKey(), 5)) {
+            $this->addError($field, __('Terlalu banyak tanggapan dikirim. Coba lagi dalam :seconds detik.', ['seconds' => RateLimiter::availableIn($this->rateLimitKey())]));
+
+            return true;
+        }
+
+        return false;
+    }
+
     private function resolveReport(): Report
     {
         return Report::query()->where('uuid', $this->reportUuid)->firstOrFail();
@@ -231,18 +310,83 @@ new class extends Component {
 
                 <div class="space-y-4 p-4">
                     @forelse ($report->comments as $comment)
-                        <div class="flex gap-3">
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                                {{ strtoupper(substr($comment->user?->name ?? 'W', 0, 1)) }}
-                            </span>
-                            <div class="min-w-0 flex-1">
-                                <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $comment->user?->name ?? __('Warga') }}</span>
-                                    · {{ $comment->created_at->format('d M Y H:i') }}
-                                </p>
-                                <p class="mt-1 whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{{ $comment->body }}</p>
+                        <article wire:key="comment-{{ $comment->id }}" class="space-y-2">
+                            <div class="flex gap-3">
+                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                                    {{ strtoupper(substr($comment->user?->name ?? 'W', 0, 1)) }}
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $comment->user?->name ?? __('Warga') }}</span>
+                                        @if ($comment->user?->isAdmin())
+                                            <span class="rounded-full border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">{{ __('Petugas') }}</span>
+                                        @endif
+                                        · {{ $comment->created_at->format('d M Y H:i') }}
+                                    </p>
+                                    <p class="mt-1 whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{{ $comment->body }}</p>
+                                </div>
                             </div>
-                        </div>
+
+                            @if ($comment->replies->isNotEmpty())
+                                <div class="ml-11 space-y-3 border-l border-gray-100 pl-3 dark:border-gray-800">
+                                    @foreach ($comment->replies as $child)
+                                        <div wire:key="comment-{{ $child->id }}" class="flex gap-2">
+                                            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                                                {{ strtoupper(substr($child->user?->name ?? 'W', 0, 1)) }}
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $child->user?->name ?? __('Warga') }}</span>
+                                                    @if ($child->user?->isAdmin())
+                                                        <span class="rounded-full border border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">{{ __('Petugas') }}</span>
+                                                    @endif
+                                                    · {{ $child->created_at->format('d M Y H:i') }}
+                                                </p>
+                                                <p class="mt-0.5 whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{{ $child->body }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if ($viewer || $comment->replies->isNotEmpty())
+                                <div class="ml-11 flex items-center gap-3">
+                                    @if ($viewer)
+                                        <button type="button" wire:click="startReply({{ $comment->id }})" class="text-xs font-semibold text-blue-700 hover:underline dark:text-blue-400">
+                                            {{ __('Balas') }}
+                                        </button>
+                                    @endif
+                                    @if ($comment->replies->isNotEmpty())
+                                        <span class="text-[11px] text-gray-500 dark:text-gray-400">{{ __(':count balasan', ['count' => $comment->replies->count()]) }}</span>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if ($replyToId === $comment->id)
+                                <form wire:submit="addReply" class="ml-11 rounded-md border border-gray-200 p-3 dark:border-gray-700">
+                                    <label for="reply-{{ $comment->id }}" class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">{{ __('Balas tanggapan ini') }}</label>
+                                    <textarea
+                                        id="reply-{{ $comment->id }}"
+                                        wire:model="reply"
+                                        rows="2"
+                                        placeholder="{{ __('Tulis balasan untuk tanggapan ini...') }}"
+                                        class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 @error('reply') border-red-300 dark:border-red-500/40 @enderror"
+                                    ></textarea>
+                                    @error('reply')
+                                        <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ $message }}</span>
+                                    @enderror
+                                    <div class="mt-2 flex justify-end gap-2">
+                                        <button type="button" wire:click="cancelReply" class="rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                                            {{ __('Batal') }}
+                                        </button>
+                                        <button type="submit" class="rounded-md bg-blue-700 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="addReply">
+                                            <span wire:loading.remove wire:target="addReply">{{ __('Kirim balasan') }}</span>
+                                            <span wire:loading wire:target="addReply">{{ __('Mengirim...') }}</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            @endif
+                        </article>
                     @empty
                         <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Belum ada tanggapan. Berikan informasi tambahan bila Anda mengetahui kondisi di lokasi.') }}</p>
                     @endforelse

@@ -9,9 +9,6 @@ use Illuminate\Database\Seeder;
 
 class ReportSeeder extends Seeder
 {
-    /**
-     * Seed a handful of citizen reports so the public map has data to show.
-     */
     public function run(): void
     {
         if (Report::query()->exists()) {
