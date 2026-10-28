@@ -1,10 +1,10 @@
+
 {
   "version": 2,
   "builds": [
     {
       "src": "public/index.php",
-      "use": "vercel-php@0.6.2",
-      "config": { "phpVersion": "8.4" }
+      "use": "vercel-php@0.8.0"
     }
   ],
   "routes": [
