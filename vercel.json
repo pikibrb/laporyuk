@@ -3,11 +3,8 @@
   "builds": [
     {
       "src": "public/index.php",
-      "use": "vercel-php@0.6.2"
-    },
-    {
-      "src": "resources/**",
-      "use": "@vercel/static"
+      "use": "vercel-php@0.6.2",
+      "config": { "phpVersion": "^8.5" }
     }
   ],
   "routes": [
