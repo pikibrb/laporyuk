@@ -25,10 +25,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
-.opencode.json
-.mcp.json
-.CLAUDE.md
-.AGENTS.md
+.opencode
+.mcp
+.CLAUDE
 /.agents
 /.claude
 /.freebuff
