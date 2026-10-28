@@ -363,7 +363,7 @@ new class extends Component {
                             @endif
 
                             @if ($replyToId === $comment->id)
-                                <form wire:submit="addReply" class="ml-11 rounded-md border border-gray-200 p-3 dark:border-gray-700">
+                                <form wire:submit="addReply" id="report-reply-form" class="ml-11 rounded-md border border-gray-200 p-3 dark:border-gray-700">
                                     <label for="reply-{{ $comment->id }}" class="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">{{ __('Balas tanggapan ini') }}</label>
                                     <textarea
                                         id="reply-{{ $comment->id }}"
@@ -379,7 +379,7 @@ new class extends Component {
                                         <button type="button" wire:click="cancelReply" class="rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                                             {{ __('Batal') }}
                                         </button>
-                                        <button type="submit" class="rounded-md bg-blue-700 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="addReply">
+                                        <button type="submit" x-on:click.prevent="$dispatch('open-modal', 'confirm-report-reply')" class="rounded-md bg-blue-700 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="addReply">
                                             <span wire:loading.remove wire:target="addReply">{{ __('Kirim balasan') }}</span>
                                             <span wire:loading wire:target="addReply">{{ __('Mengirim...') }}</span>
                                         </button>
@@ -392,7 +392,7 @@ new class extends Component {
                     @endforelse
 
                     @if ($viewer)
-                        <form wire:submit="addComment" class="border-t border-gray-100 pt-4 dark:border-gray-800">
+                        <form wire:submit="addComment" id="report-comment-form" class="border-t border-gray-100 pt-4 dark:border-gray-800">
                             <label for="comment" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Tulis tanggapan') }}</label>
                             <textarea
                                 id="comment"
@@ -405,7 +405,7 @@ new class extends Component {
                                 <span class="mt-1 block text-xs text-red-600 dark:text-red-400">{{ $message }}</span>
                             @enderror
                             <div class="mt-2 flex justify-end">
-                                <button type="submit" class="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800" wire:loading.attr="disabled" wire:target="addComment">
+                                <button type="submit" x-on:click.prevent="$dispatch('open-modal', 'confirm-report-comment')" class="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800" wire:loading.attr="disabled" wire:target="addComment">
                                     <span wire:loading.remove wire:target="addComment">{{ __('Kirim tanggapan') }}</span>
                                     <span wire:loading wire:target="addComment">{{ __('Mengirim...') }}</span>
                                 </button>
@@ -460,7 +460,7 @@ new class extends Component {
                 </ol>
 
                 @if ($isAdmin)
-                    <form wire:submit="updateStatus" class="mt-4 space-y-2 border-t border-gray-100 pt-4 dark:border-gray-800">
+                    <form wire:submit="updateStatus" id="report-status-form" class="mt-4 space-y-2 border-t border-gray-100 pt-4 dark:border-gray-800">
                         <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{{ __('Perbarui status') }}</p>
 
                         <select wire:model="status" class="w-full rounded-md border-gray-300 text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600">
@@ -482,7 +482,7 @@ new class extends Component {
                             <span class="block text-xs text-red-600 dark:text-red-400">{{ $message }}</span>
                         @enderror
 
-                        <button type="submit" class="w-full rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800" wire:loading.attr="disabled" wire:target="updateStatus">
+                        <button type="submit" x-on:click.prevent="$dispatch('open-modal', 'confirm-report-status')" class="w-full rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800" wire:loading.attr="disabled" wire:target="updateStatus">
                             <span wire:loading.remove wire:target="updateStatus">{{ __('Simpan status') }}</span>
                             <span wire:loading wire:target="updateStatus">{{ __('Menyimpan...') }}</span>
                         </button>
@@ -499,6 +499,35 @@ new class extends Component {
             </div>
         </div>
     </div>
+
+    <x-confirm-modal
+        name="confirm-report-comment"
+        variant="primary"
+        :title="__('Kirim tanggapan ini?')"
+        :message="__('Tanggapan akan terlihat oleh pelapor dan petugas lain.')"
+        :confirm-label="__('Kirim tanggapan')"
+        submit-form="report-comment-form"
+    />
+
+    <x-confirm-modal
+        name="confirm-report-reply"
+        variant="primary"
+        :title="__('Kirim balasan ini?')"
+        :message="__('Balasan akan terlihat oleh warga dan petugas lain.')"
+        :confirm-label="__('Kirim balasan')"
+        submit-form="report-reply-form"
+    />
+
+    @if ($isAdmin)
+        <x-confirm-modal
+            name="confirm-report-status"
+            variant="warning"
+            :title="__('Perbarui status laporan?')"
+            :message="__('Perubahan status akan dicatat di riwayat dan langsung terlihat oleh pelapor.')"
+            :confirm-label="__('Simpan status')"
+            submit-form="report-status-form"
+        />
+    @endif
 </div>
 
 @script

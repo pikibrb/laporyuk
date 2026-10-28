@@ -129,13 +129,22 @@ new class extends Component {
                     {{ __('Profil') }}
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" id="sidebar-logout-form">
                     @csrf
-                    <button type="submit" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
+                    <button type="submit" x-on:click.prevent="$dispatch('open-modal', 'confirm-logout-sidebar')" class="w-full rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
                         {{ __('Keluar') }}
                     </button>
                 </form>
             </div>
+
+            <x-confirm-modal
+                name="confirm-logout-sidebar"
+                variant="warning"
+                :title="__('Keluar dari akun?')"
+                :message="__('Anda perlu masuk kembali untuk memantau laporan dan masukan.')"
+                :confirm-label="__('Keluar')"
+                submit-form="sidebar-logout-form"
+            />
         @else
             <a href="{{ route('login') }}" class="block rounded-md bg-blue-700 px-3 py-2 text-center text-sm font-medium text-white hover:bg-blue-800">
                 {{ __('Masuk Petugas') }}

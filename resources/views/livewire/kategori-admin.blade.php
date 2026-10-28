@@ -244,15 +244,16 @@ new class extends Component {
     >
         @if ($confirmingDeleteId)
             <x-slot:confirm>
-                <x-danger-button
+                <button
                     type="button"
                     wire:click="deleteCategory({{ $confirmingDeleteId }})"
                     wire:loading.attr="disabled"
                     wire:target="deleteCategory"
+                    class="inline-flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-red-600/25 transition-colors hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:focus-visible:ring-offset-gray-900"
                 >
                     <span wire:loading.remove wire:target="deleteCategory">{{ __('Hapus kategori') }}</span>
                     <span wire:loading wire:target="deleteCategory">{{ __('Menghapus...') }}</span>
-                </x-danger-button>
+                </button>
             </x-slot:confirm>
         @endif
     </x-confirm-modal>

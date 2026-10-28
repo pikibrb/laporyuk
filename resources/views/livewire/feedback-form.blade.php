@@ -99,7 +99,7 @@ new class extends Component {
             </div>
         @endif
 
-        <form wire:submit="submit" class="space-y-4">
+        <form wire:submit="submit" id="feedback-form" class="space-y-4">
             <div>
                 <label for="feedback-type" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Jenis masukan') }}</label>
                 <select
@@ -169,11 +169,20 @@ new class extends Component {
                 <p class="text-xs text-gray-500 dark:text-gray-400">
                     {{ Auth::check() ? __('Masukan tercatat atas nama akun Anda.') : __('Masukan dikirim secara anonim tanpa akun.') }}
                 </p>
-                <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="submit">
+                <button type="submit" x-on:click.prevent="$dispatch('open-modal', 'confirm-feedback-submit')" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60" wire:loading.attr="disabled" wire:target="submit">
                     <span wire:loading.remove wire:target="submit">{{ __('Kirim masukan') }}</span>
                     <span wire:loading wire:target="submit">{{ __('Mengirim...') }}</span>
                 </button>
             </div>
         </form>
+
+        <x-confirm-modal
+            name="confirm-feedback-submit"
+            variant="primary"
+            :title="__('Kirim masukan ini?')"
+            :message="__('Masukan yang sudah dikirim tidak dapat diubah. Pastikan isinya sudah sesuai.')"
+            :confirm-label="__('Kirim masukan')"
+            submit-form="feedback-form"
+        />
     @endif
 </div>

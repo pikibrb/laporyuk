@@ -189,7 +189,7 @@ new class extends Component {
                     @endif
 
                     @if ($respondingId === $feedback->id)
-                        <form wire:submit="saveResponse" class="border-t border-gray-100 pt-3 dark:border-gray-800">
+                        <form wire:submit="saveResponse" id="feedback-response-form" class="border-t border-gray-100 pt-3 dark:border-gray-800">
                             <label for="feedback-response-{{ $feedback->id }}" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {{ __('Tanggapan untuk warga') }}
                             </label>
@@ -214,6 +214,7 @@ new class extends Component {
                                 </button>
                                 <button
                                     type="submit"
+                                    x-on:click.prevent="$dispatch('open-modal', 'confirm-feedback-response')"
                                     class="rounded-md bg-blue-700 px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 disabled:opacity-60"
                                     wire:loading.attr="disabled"
                                     wire:target="saveResponse"
@@ -223,6 +224,15 @@ new class extends Component {
                                 </button>
                             </div>
                         </form>
+
+                        <x-confirm-modal
+                            name="confirm-feedback-response"
+                            variant="primary"
+                            :title="__('Simpan tanggapan ini?')"
+                            :message="__('Tanggapan akan disimpan dan dapat dilihat oleh warga yang mengirim masukan.')"
+                            :confirm-label="__('Simpan tanggapan')"
+                            submit-form="feedback-response-form"
+                        />
                     @else
                         <div class="flex justify-end">
                             <button

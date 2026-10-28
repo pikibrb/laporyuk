@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             admin::class,
             CategorySeeder::class,
             HotlineSeeder::class,
-            ReportSeeder::class,
+            // ReportSeeder::class,
         ]);
     }
 }

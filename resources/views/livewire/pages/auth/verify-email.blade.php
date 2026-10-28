@@ -46,8 +46,27 @@ new #[Layout('layouts.guest')] class extends Component
             {{ __('Resend Verification Email') }}
         </x-primary-button>
 
-        <button wire:click="logout" type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+        <button x-on:click="$dispatch('open-modal', 'confirm-logout-verify')" type="button" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
             {{ __('Log Out') }}
         </button>
     </div>
+
+    <x-confirm-modal
+        name="confirm-logout-verify"
+        variant="warning"
+        :title="__('Log out of your account?')"
+        :message="__('You will need to sign in again to access your reports.')"
+        :confirm-label="__('Log Out')"
+    >
+        <x-slot:confirm>
+            <button
+                type="button"
+                wire:click="logout"
+                x-on:click="show = false"
+                class="inline-flex w-full items-center justify-center rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-amber-500/25 transition-colors hover:bg-amber-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto dark:focus-visible:ring-offset-gray-900"
+            >
+                {{ __('Log Out') }}
+            </button>
+        </x-slot:confirm>
+    </x-confirm-modal>
 </div>
